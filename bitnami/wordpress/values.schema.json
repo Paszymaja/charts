@@ -114,7 +114,7 @@
     "ingress": {
       "type": "object",
       "form": true,
-      "title": "Ingress Details",
+      "title": "Ingress Configuration",
       "properties": {
         "enabled": {
           "type": "boolean",
@@ -152,6 +152,19 @@
         }
       }
     },
+    "service": {
+      "type": "object",
+      "form": true,
+      "title": "Service Configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "form": true,
+          "title": "Service Type",
+          "description": "Allowed values: \"ClusterIP\", \"NodePort\" and \"LoadBalancer\"" 
+        }
+      }
+    },
     "resources": {
       "type": "object",
       "title": "Required Resources",
@@ -180,6 +193,17 @@
               "sliderUnit": "m"
             }
           }
+        }
+      }
+    },
+    "volumePermissions": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "form": true,
+          "title": "Enable Init Containers",
+          "description": "Use an init container to set required folder permissions on the data volume before mounting it in the final destination"
         }
       }
     },

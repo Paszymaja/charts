@@ -38,6 +38,11 @@ spec:
       {{- end }}
       {{- if .Values.aggregator.affinity }}
       affinity: {{- include "fluentd.tplValue" (dict "value" .Values.aggregator.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.aggregator.podAffinityPreset "component" "aggregator" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.aggregator.podAntiAffinityPreset "component" "aggregator" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.aggregator.nodeAffinityPreset.type "key" .Values.aggregator.nodeAffinityPreset.key "values" .Values.aggregator.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
       {{- if .Values.aggregator.nodeSelector }}
       nodeSelector: {{- include "fluentd.tplValue" (dict "value" .Values.aggregator.nodeSelector "context" $) | nindent 8 }}
@@ -78,8 +83,8 @@ spec:
           {{- if .Values.aggregator.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-              path: /fluentd.healthcheck?json=%7B%22ping%22%3A+%22pong%22%7D
-              port: http
+              path: {{ .Values.aggregator.livenessProbe.httpGet.path }}
+              port: {{ .Values.aggregator.livenessProbe.httpGet.port }}
             initialDelaySeconds: {{ .Values.aggregator.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.aggregator.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.aggregator.livenessProbe.timeoutSeconds }}
@@ -89,8 +94,8 @@ spec:
           {{- if .Values.aggregator.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
-              path: /fluentd.healthcheck?json=%7B%22ping%22%3A+%22pong%22%7D
-              port: http
+              path: {{ .Values.aggregator.readinessProbe.httpGet.path }}
+              port: {{ .Values.aggregator.readinessProbe.httpGet.port }}
             initialDelaySeconds: {{ .Values.aggregator.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.aggregator.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.aggregator.readinessProbe.timeoutSeconds }}

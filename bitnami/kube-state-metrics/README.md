@@ -18,7 +18,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 ## Prerequisites
 
 - Kubernetes 1.12+
-- Helm 3.0-beta3+
+- Helm 3.1.0
 
 ## Installing the Chart
 
@@ -70,6 +70,7 @@ The following table lists the configurable parameters of the kube-state-metrics 
 | `image.pullSecrets`                          | Specify docker-registry secret names as an array                                                              | `[]` (does not add image pull secrets to deployed pods)    |
 | `extraArgs`                                  | Additional command line arguments to pass to kube-state-metrics                                               | `{}`                                                       |
 | `namespace`                                  | Comma-separated list of namespaces to be enabled. Defaults to all namespaces                                  | ``                                                         |
+| `hostAliases`                                | Add deployment host aliases                                                                                   | `[]`                                                       |
 | `collectors.certificatesigningrequests`      | Enable the `certificatesigningrequests` collector                                                             | `true`                                                     |
 | `collectors.configmaps`                      | Enable the `configmaps` collector                                                                             | `true`                                                     |
 | `collectors.cronjobs`                        | Enable the `cronjobs` collector                                                                               | `true`                                                     |
@@ -117,9 +118,14 @@ The following table lists the configurable parameters of the kube-state-metrics 
 | `podAnnotations`                             | Pod annotations                                                                                               | `{}`                                                       |
 | `updateStrategy`                             | Allows setting of `RollingUpdate` strategy                                                                    | `{}`                                                       |
 | `minReadySeconds`                            | How many seconds a pod needs to be ready before killing the next, during update                               | `0`                                                        |
-| `affinity`                                   | Map of node/pod affinities                                                                                    | `{} (The value is evaluated as a template)`                |
-| `nodeSelector`                               | Node labels for pod assignment (this value is evaluated as a template)                                        | `{} (The value is evaluated as a template)`                |
-| `tolerations`                                | List of node taints to tolerate (this value is evaluated as a template)                                       | `[] (The value is evaluated as a template)`                |
+| `podAffinityPreset`                          | Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                           | `""`                                                       |
+| `podAntiAffinityPreset`                      | Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                      | `soft`                                                     |
+| `nodeAffinityPreset.type`                    | Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                     | `""`                                                       |
+| `nodeAffinityPreset.key`                     | Node label key to match. Ignored if `affinity` is set.                                                        | `""`                                                       |
+| `nodeAffinityPreset.values`                  | Node label values to match. Ignored if `affinity` is set.                                                     | `[]`                                                       |
+| `affinity`                                   | Affinity for pod assignment                                                                                   | `{}` (evaluated as a template)                             |
+| `nodeSelector`                               | Node labels for pod assignment                                                                                | `{}` (evaluated as a template)                             |
+| `tolerations`                                | Tolerations for pod assignment                                                                                | `[]` (evaluated as a template)                             |
 | `livenessProbe.enabled`                      | Turn on and off liveness probe                                                                                | `true`                                                     |
 | `livenessProbe.initialDelaySeconds`          | Delay before liveness probe is initiated                                                                      | `120`                                                      |
 | `livenessProbe.periodSeconds`                | How often to perform the probe                                                                                | `10`                                                       |
@@ -163,16 +169,11 @@ It is strongly recommended to use immutable tags in a production environment. Th
 
 Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
 
-### Production configuration
+### Setting Pod's affinity
 
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`. You can use this file instead of the default one.
+This chart allows you to set your custom affinity using the `affinity` parameter. Find more information about Pod's affinity in the [kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
 
-- Increase the number of kube-state-metrics Pod replicas:
-
-```diff
--   replicaCount: 1
-+   replicaCount: 2
-```
+As an alternative, you can use of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/master/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
 
 ## Troubleshooting
 
@@ -183,6 +184,10 @@ Find more information about how to deal with common errors related to Bitnami’
 ```bash
 $ helm upgrade my-release bitnami/kube-state-metrics
 ```
+
+### To 1.1.0
+
+This version introduces `bitnami/common`, a [library chart](https://helm.sh/docs/topics/library_charts/#helm) as a dependency. More documentation about this new utility could be found [here](https://github.com/bitnami/charts/tree/master/bitnami/common#bitnami-common-library-chart). Please, make sure that you have updated the chart dependencies before executing any upgrade.
 
 ### To 1.0.0
 

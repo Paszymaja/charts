@@ -37,8 +37,14 @@ spec:
         {{- end }}
     spec:
       {{- include "harbor.imagePullSecrets" . | nindent 6 }}
+      automountServiceAccountToken: false
       {{- if .Values.portal.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.portal.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.portal.podAffinityPreset "component" "portal" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.portal.podAntiAffinityPreset "component" "portal" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.portal.nodeAffinityPreset.type "key" .Values.portal.nodeAffinityPreset.key "values" .Values.portal.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
       {{- if .Values.portal.nodeSelector }}
       nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.portal.nodeSelector "context" $) | nindent 8 }}
@@ -144,5 +150,5 @@ spec:
             secretName: {{ include "harbor.portal.tls.secretName" . }}
         {{- end }}
       {{- if .Values.portal.extraVolumes }}
-      {{- include "common.tplvalues.render" (dict "value" .Values.portal.extraVolumes "context" $) | nindent 6 }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.portal.extraVolumes "context" $) | nindent 8 }}
       {{- end }}

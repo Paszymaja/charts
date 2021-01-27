@@ -42,8 +42,14 @@ spec:
         {{- end }}
     spec:
       {{- include "harbor.imagePullSecrets" . | nindent 6 }}
+      automountServiceAccountToken: false
       {{- if .Values.jobservice.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.jobservice.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.jobservice.podAffinityPreset "component" "jobservice" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.jobservice.podAntiAffinityPreset "component" "jobservice" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.jobservice.nodeAffinityPreset.type "key" .Values.jobservice.nodeAffinityPreset.key "values" .Values.jobservice.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
       {{- if .Values.jobservice.nodeSelector }}
       nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.jobservice.nodeSelector "context" $) | nindent 8 }}
@@ -210,5 +216,5 @@ spec:
             secretName: {{ include "harbor.jobservice.tls.secretName" . }}
         {{- end }}
       {{- if .Values.jobservice.extraVolumes }}
-      {{- include "common.tplvalues.render" (dict "value" .Values.jobservice.extraVolumes "context" $) | nindent 6 }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.jobservice.extraVolumes "context" $) | nindent 8 }}
       {{- end }}

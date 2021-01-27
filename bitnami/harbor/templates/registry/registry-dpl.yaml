@@ -41,8 +41,14 @@ spec:
         {{- end }}
     spec:
       {{- include "harbor.imagePullSecrets" . | nindent 6 }}
+      automountServiceAccountToken: false
       {{- if .Values.registry.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.registry.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.registry.podAffinityPreset "component" "registry" "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.registry.podAntiAffinityPreset "component" "registry" "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.registry.nodeAffinityPreset.type "key" .Values.registry.nodeAffinityPreset.key "values" .Values.registry.nodeAffinityPreset.values) | nindent 10 }}
       {{- end }}
       {{- if .Values.registry.nodeSelector }}
       nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.registry.nodeSelector "context" $) | nindent 8 }}
@@ -382,5 +388,5 @@ spec:
         {{- end }}
         {{- end }}
       {{- if .Values.registry.extraVolumes }}
-      {{- include "common.tplvalues.render" (dict "value" .Values.registry.extraVolumes "context" $) | nindent 6 }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.registry.extraVolumes "context" $) | nindent 8 }}
       {{- end }}
